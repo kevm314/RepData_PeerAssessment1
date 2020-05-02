@@ -74,4 +74,62 @@ na.count <- sum(is.na(dat))
 
 There are 2304 rows with missing values.
 
+### 2. Strategy for imputing missing values
+
+
+```r
+dat$steps <- as.numeric(is.na(dat$steps))
+missing.values <- aggregate(steps ~ date, data=dat, FUN=sum)
+
+barplot(missing.values$steps, names=missing.values$date, main="Missing values per day")
+```
+
+![](PA1_template_files/figure-html/missing-1.png)<!-- -->
+
+```r
+missing.values <- aggregate(steps ~ interval, data=dat, FUN=sum)
+barplot(missing.values$steps, names=missing.values$interval, main="Missing values per interval")
+```
+
+![](PA1_template_files/figure-html/missing-2.png)<!-- -->
+
+Most days have no missing values, however, 8 days have over 250 missing values. In comparison, every interval has a very similar number of missing values.
+
+A simple strategy to try will involve replacing a missing value with the mean for that time interval.
+
+### 3. Imputing missing values
+
+
+```r
+dat <- read.csv("data/activity.csv")
+dat$date <- as.Date(as.character(dat$date), "%Y-%m-%d")
+
+mean.steps <- aggregate(steps ~ interval, data=dat, FUN=mean, na.rm=T)
+
+dat$steps <- as.numeric(apply(dat, 1, function(x) if(is.na(x["steps"])) {mean.steps[mean.steps$interval == as.numeric(x["interval"]),"steps"]} else {x["steps"]} ))
+```
+
+### 4. Histogram with imputed missing values
+
+
+
+```r
+daily.steps <- aggregate(steps ~ date, data=dat, FUN=sum, na.rm=T)
+hist(daily.steps$steps, col="blue", xlab="Steps per day", ylab="Step count", main="")
+```
+
+![](PA1_template_files/figure-html/imputed-1.png)<!-- -->
+
+```r
+summary(daily.steps$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9819   10766   10766   12811   21194
+```
+
+
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
