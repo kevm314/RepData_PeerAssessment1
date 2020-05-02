@@ -8,18 +8,58 @@ output:
 
 ## Loading and preprocessing the data
 
-
+```{r}
+dat <- read.csv("data/activity.csv")
+dat$date <- as.Date(as.character(dat$date), "%Y-%m-%d")
+```
 
 ## What is mean total number of steps taken per day?
 
+### 1. Total number of steps per day
+```{r daily.steps}
+daily.steps <- aggregate(steps ~ date, data=dat, FUN=sum, na.rm=T)
 
+```
+### 2. Histogram of the total number of steps taken each day
+
+```{r hist}
+hist(daily.steps$steps, col="blue", xlab="Steps per day", ylab="Step count", main="")
+```
+
+### 3. Summary statistics of daily steps
+
+```{r summary}
+summary(daily.steps$steps)
+```
 
 ## What is the average daily activity pattern?
 
+### 1. 5 minute interval plot against step count across all days
 
+``` {r time.series}
+
+interval.data <- aggregate(steps ~ interval, data=dat, FUN=mean, na.rm=T)
+with(interval.data, plot(steps~interval, type="l", col="blue", xlab="Interval Number", ylab="Step count averaged over days", main="Averaged step counts for every time interval"))
+```
+
+### 2. 5-minute interval with maximum average step count.
+
+``` {r max.interval}
+
+max.interval <- interval.data[which(interval.data$steps == max(interval.data$steps)),]
+
+```
+
+The max interval is interval number `r max.interval$interval` having a maximum average step count value of `r round(max.interval$steps, 2)`.
 
 ## Imputing missing values
 
+### 1. Total number of missing values in the datase
 
+``` {r na}
+na.count <- sum(is.na(dat))
+```
+
+There are `r na.count` rows with missing values.
 
 ## Are there differences in activity patterns between weekdays and weekends?
