@@ -129,7 +129,50 @@ summary(daily.steps$steps)
 ##      41    9819   10766   10766   12811   21194
 ```
 
-
+The mean and median values have barely changed compared to the non-imputed case. Furthermore,
+there is relatively minimal impact of imputing missing data on the estimates of the total daily number of steps, since both histograms show similar structures in form.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+### 1. Creating a new dataset with weekdays/ non-weekdays
+
+
+```r
+partition.days <- function(x) {
+        if (weekdays(as.Date(x["date"])) == "Sunday" || weekdays(as.Date(x["date"])) == "Saturday") {
+                return("weekend");
+        } else {
+                return("weekday");
+        }
+}
+
+dat$day <- as.factor(apply(dat, 1, partition.days))
+head(dat)
+```
+
+```
+##       steps       date interval     day
+## 1 1.7169811 2012-10-01        0 weekday
+## 2 0.3396226 2012-10-01        5 weekday
+## 3 0.1320755 2012-10-01       10 weekday
+## 4 0.1509434 2012-10-01       15 weekday
+## 5 0.0754717 2012-10-01       20 weekday
+## 6 2.0943396 2012-10-01       25 weekday
+```
+
+### 2. Average daily steps against interval number across weekdays/ non-weekdays
+
+
+```r
+average.steps <- aggregate(steps ~ interval + day, data=dat, FUN=mean)
+
+library(ggplot2)
+g <- ggplot(average.steps, aes(interval, steps))
+g + geom_line() + facet_grid(day~.) + labs(x ="Interval Number", y="Average Steps count", title="Activity patterns over day types")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+It appears that step activity starts earlier during the day for weekdays, whereas the overall step activity is sustained at a relatively higher level throughout the weekend.
+

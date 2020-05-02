@@ -109,3 +109,33 @@ there is relatively minimal impact of imputing missing data on the estimates of 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+### 1. Creating a new dataset with weekdays/ non-weekdays
+
+``` {r days}
+
+partition.days <- function(x) {
+        if (weekdays(as.Date(x["date"])) == "Sunday" || weekdays(as.Date(x["date"])) == "Saturday") {
+                return("weekend");
+        } else {
+                return("weekday");
+        }
+}
+
+dat$day <- as.factor(apply(dat, 1, partition.days))
+head(dat)
+```
+
+### 2. Average daily steps against interval number across weekdays/ non-weekdays
+
+``` {r}
+
+average.steps <- aggregate(steps ~ interval + day, data=dat, FUN=mean)
+
+library(ggplot2)
+g <- ggplot(average.steps, aes(interval, steps))
+g + geom_line() + facet_grid(day~.) + labs(x ="Interval Number", y="Average Steps count", title="Activity patterns over day types")
+```
+
+It appears that step activity starts earlier during the day for weekdays, whereas the overall step activity is sustained at a relatively higher level throughout the weekend.
+
